@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <title>Address Book View</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+<h1 th:text = "'Address Book '+ ${id}"> </h1>
+<script>
+    let id = window.location.pathname.split("/").pop();
+
+    $(document).ready(function() {
+        $(".addressbook").show();
+
+        $(".createBuddy").click(function(){
+            $.ajax({
+                url: "/addressbook/" + id + "/buddyinfo",
+                method: "POST",
+                data: JSON.stringify({
+                    name: $(".name").val(),
+                    address: $(".address").val(),
+                    phoneNumber: $(".phoneNumber").val()
+                }),
+                contentType: 'application/json'
+
+            }).then(function(data) {
+                $(".buddies").text(JSON.stringify(data.buddies));
+            })
+        })
+
+        $.ajax({
+            url: "/addressbook/" + id,
+            method: "GET"
+        }).then(function (data){
+            $(".buddies").text(JSON.stringify(data.buddies));
+        })})
+</script>
+<noscript>
+<h2>Submit New Buddy Form</h2>
+<form action="#" th:action="@{'/addressbook/' + ${id}}" th:object="${buddyInfo}" method="post">
+    <p>Name: <input type="text" th:field="*{name}" /></p>
+    <p>Address: <input type="text" th:field="*{address}" /></p>
+    <p>Number: <input type="text" th:field="*{phoneNumber}" /></p>
+    <p><input type="submit" value="Submit" /> <input type="reset" value="Reset" /></p>
+</form>
+<h3>Address Book Contents</h3>
+<table>
+    <tbody>
+    <tr th:each="buddy: ${buddies}">
+        <td th:text="${buddy.getName()}"></td>
+        <td th:text="${buddy.getAddress()}"></td>
+        <td th:text="${buddy.getPhoneNumber()}"></td>
+    </tr>
+    </tbody>
+</table>
+</noscript>
+<div class="addressbook" style="display: none">
+    <p class="buddies"></p>
+    <p>Name: <input class="name"/></p>
+    <p>Address: <input class="address"/></p>
+    <p>Phone Number: <input class="phoneNumber"/></p>
+    <button class="createBuddy">
+        Create New Buddy
+    </button>
+
+</div>
+</body>
+</html>
